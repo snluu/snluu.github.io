@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Small Ubuntu tweaks - LUU.IO</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css" />
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Merriweather:300,300i,400|Montserrat:300,400" />
+    
+<link rel="stylesheet" type="text/css" href="/static/css/posts.css" />
+
+</head>
+
+<body>
+    
+    <div id="page">
+        <header>
+            <div id="site-name">
+                <a href="/">LUU.IO</a>
+            </div>
+            <div id="nav">
+                <ul id="nav-list">
+                    <li><a href="/posts">Blog Posts</a></li>
+                    <li><a href="/photos">Photo Gallery</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="container">
+            <main role="main">
+                
+<div class="post-container">
+    <h1 class="post-title">Small Ubuntu tweaks</h1>
+
+    <div class="post-body">
+        <div>
+            <ul class="additional small">
+                <li>Published on February 27, 2019</li>
+            </ul>
+            
+            <ul class="additional small">
+                <li>Tags:&nbsp;
+                    <a href="../_tags/#ubuntu">ubuntu</a>,&nbsp;
+                    <a href="../_tags/#linux">linux</a>
+                </li>
+            </ul>
+            
+        </div>
+        <div class="post-content"><p>Here are some of the small tweaks and changes I did to make Ubuntu more usable. Mostly documenting for my future self, though hopefully it helps others, too.</p>
+<h4>Getting videos working on Firefox</h4>
+<p>(As of 18.04)</p>
+<p><code>sudo apt install libavcodec-extra</code></p>
+<h4>Make Firefox address bar behave like it does on all the other OS'</h4>
+<p>(As of Firefox 65)</p>
+<p>Not sure why, but the address bar of Firefox on Linux doesn't behave like Windows &amp; MacOS. Namely, when you click the address bar, it selects all the text, and when you double-click, it selects a word (part of the address).</p>
+<ul>
+<li>Go to <code>about:config</code> from the address bar</li>
+<li>Set <code>browser.urlbar.clickSelectsAll</code> to <code>true</code></li>
+<li>Set <code>browser.urlbar.doubleClickSelectsAll</code> to <code>false</code></li>
+</ul>
+<h4>Removing the unwanted &quot;favorites&quot; from the sidebar of the file explorer/natilus:</h4>
+<p>(As of 18.04)</p>
+<p>Modify these two files then restart:</p>
+<ul>
+<li>vim ~/.config/user-dirs.dirs</li>
+<li>sudo vim /etc/xdg/user-dirs.defaults</li>
+</ul>
+<h4>Install vanilla GNOME desktop</h4>
+<p>(As of 18.04 and GNOME 3)</p>
+<p>I perfer the vanilla GNOME desktop.</p>
+<ul>
+<li>Install the GNOME shell: <code>sudo apt-get install chrome-gnome-shell</code></li>
+<li>Switch the CSS file used for the login screen: <code>sudo update-alternatives --config gdm3.css</code> and pick <code>gnome-shell.css</code>.</li>
+</ul>
+<h3>GNOME shell extensions</h3>
+<p>(As of 18.04)</p>
+<ul>
+<li>Install the GNOME shell browser extension from <a href="https://extensions.gnome.org/">https://extensions.gnome.org/</a></li>
+<li>Install the GNOME Tweaks app from the Software Center and it'll let you configure/manage these extensions</li>
+</ul>
+<p>Useful extensions:</p>
+<ul>
+<li><a href="https://extensions.gnome.org/extension/307/dash-to-dock/">Dash to Dock</a> gives you a dock and lets you customize dock location, auto-hide, etc.</li>
+<li><a href="https://extensions.gnome.org/extension/615/appindicator-support/">KStatusNotifierItem/AppIndicator Support</a> makes the icon on the top bar work again. Apps like Dropbox, Flameshot don't work the the default GNOME tray icons for some reason?</li>
+<li><a href="https://extensions.gnome.org/extension/602/window-list/">Window List</a> shows a bar at the bottom of the screen that shows active windows. Kind of like the Microsoft Windows task bar.</li>
+</ul>
+</div>
+    </div>
+</div>
+
+            </main>
+        </div>
+
+        <footer>
+            <div>Copyright 2019, Steven Luu</div>
+            <div>
+                This work is licensed under a&nbsp;
+                <a rel="license noopener noreferrer" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"
+                    target="_blank">
+                    Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+                </a>.
+            </div>
+            <div>The opinions expressed here are mine.</div>
+        </footer>
+    </div>
+
+    
+</body>
+
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Why &amp; How: ASP.NET Core + Docker + Heroku + Postgres - LUU.IO</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css" />
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Merriweather:300,300i,400|Montserrat:300,400" />
+    
+<link rel="stylesheet" type="text/css" href="/static/css/posts.css" />
+
+</head>
+
+<body>
+    
+    <div id="page">
+        <header>
+            <div id="site-name">
+                <a href="/">LUU.IO</a>
+            </div>
+            <div id="nav">
+                <ul id="nav-list">
+                    <li><a href="/posts">Blog Posts</a></li>
+                    <li><a href="/photos">Photo Gallery</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="container">
+            <main role="main">
+                
+<div class="post-container">
+    <h1 class="post-title">Why &amp; How: ASP.NET Core + Docker + Heroku + Postgres</h1>
+
+    <div class="post-body">
+        <div>
+            <ul class="additional small">
+                <li>Published on April  8, 2017</li>
+            </ul>
+            
+            <ul class="additional small">
+                <li>Tags:&nbsp;
+                    <a href="../_tags/#programming">programming</a>,&nbsp;
+                    <a href="../_tags/#asp.net">asp.net</a>,&nbsp;
+                    <a href="../_tags/#docker">docker</a>
+                </li>
+            </ul>
+            
+        </div>
+        <div class="post-content"><p>This website is powered by <strong>ASP.NET Core</strong> and <strong>Postgres</strong> running inside a <strong>Docker</strong> container hosted on <strong>Heroku</strong> as of this writing. Below are the why's and how's.</p>
+<h2>Why's</h2>
+<h4>Why ASP.NET Core</h4>
+<p>In short: cross-platform &amp; lightweight development.</p>
+<p>I can code on my Linux desktop and my Windows surface. It's certainly a lot more cross-platform than the Ruby community. Heck, half the gems can't even be installed on Windows.</p>
+<p>I was able to write all the components for this website using just Sublime Text and the command line:</p>
+<ul>
+<li>A .NET Core friendly ORM (don't ask why)</li>
+<li>The core logic contained in a .DLL project</li>
+<li>The MVC controllers and views</li>
+</ul>
+<h4>Why Docker</h4>
+<p>Docker allows me to have a local environment that's (mostly) identical to the production environment.</p>
+<h4>Why Heroku</h4>
+<p>Easy deployment, cheap (enough).</p>
+<h4>Why Postgres</h4>
+<p>Cross-platform, the defacto supported database on Heroku, cheap (enough).</p>
+<h2>How's</h2>
+<h4>Developing ASP.NET Core with Docker</h4>
+<p>What I do is basically spin up a Docker node with:</p>
+<ul>
+<li>A database container</li>
+<li>A web container, with the <code>/opt/app</code> folder mapped to my source code folder.</li>
+<li>Configure all this with a <code>docker-compose.yml</code> file (see below).</li>
+<li>Run <code>docker-compose run web bash</code>. This puts me on the bash command line of the web container. From there, I can do my regular <code>dotnet restore</code> and <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch"><code>dotnet watch run</code></a>.</li>
+<li>From the web container, I can reach the database container via &quot;postgres://db&quot;--you get the idea.</li>
+<li>In the docker-compose file, I mapped port 5000 from the web container and ported 5432 to the same ports on my local machine. This means I can browse the web page I'm developing at &quot;http://localhost:5000&quot; and connect to Postgres via &quot;localhost:5432&quot;.</li>
+<li>By default, ASP.NET Core listens at &quot;localhost:{PORT}&quot;. This means the web host can only be reached from within the machine or container it runs on. We want to change it to &quot;0.0.0.0:{PORT}&quot;. That can be accomplished by setting the <code>ASPNETCORE_URLS</code> environment variable, or <a href="https://gist.github.com/snluu/d05732e1b7eb0c98660f5dc10c606c76">call <code>UseUrl</code> when setting up the web host</a>.</li>
+</ul>
+<script src="https://gist.github.com/snluu/be7eedc1574e05a489c1b813585d8028.js"></script>
+<h4>Packaging as a Docker image</h4>
+<p>Microsoft has a <a href="https://github.com/dotnet/dotnet-docker#run-a-net-core-application-with-the-net-core-runtime-image">comprehensive guide</a> to packaging your .NET Core application using the <strong>runtime</strong> image (which is significantly smaller than the SDK image).
+In short:</p>
+<ol>
+<li>Configure your Dockerfile similar the Dockerfile below.</li>
+<li>Run <code>dotnet restore</code> then <code>dotnet publish -c Release -o out</code> to build your binaries.</li>
+<li>Run <code>docker build -t &lt;your-image-name&gt; .</code> to build the docker image with the binary output.</li>
+</ol>
+<script src="https://gist.github.com/snluu/efdd42ff738abdb09818bfde1c5ef271.js"></script>
+<h4>Pushing YOUR Docker image to Heroku</h4>
+<p>Heroku also has an <a href="https://devcenter.heroku.com/articles/container-registry-and-runtime">official guide</a> to deploy existing Docker images to its infrastructure. Follow the guide to install the Heroku CLI and sign into the container registry from the command line. These two final steps will get your container onto Heroku:</p>
+<ul>
+<li><code>docker tag &lt;your-image-name&gt; registry.heroku.com/&lt;heroky-app-name&gt;/web</code></li>
+<li><code>docker push registry.heroku.com/&lt;heroky-app-name&gt;/web</code></li>
+</ul>
+<p>If your .NET Core application is a background/command line application, change the last part of the registry to &quot;worker&quot; instead of web.</p>
+<p><strong>Note:</strong> The first time pushing your docker image to Heroku might take a little while, since it's pushing the whole OS, the .NET Runtime, then your code, etc. Subsequent pushes will only push your code to the registry. The other layers (OS, .NET) are cached on Heroku. </p>
+</div>
+    </div>
+</div>
+
+            </main>
+        </div>
+
+        <footer>
+            <div>Copyright 2019, Steven Luu</div>
+            <div>
+                This work is licensed under a&nbsp;
+                <a rel="license noopener noreferrer" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"
+                    target="_blank">
+                    Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+                </a>.
+            </div>
+            <div>The opinions expressed here are mine.</div>
+        </footer>
+    </div>
+
+    
+</body>
+
+</html>

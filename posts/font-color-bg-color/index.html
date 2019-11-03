@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Set both background and font colors, or neither - LUU.IO</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css" />
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Merriweather:300,300i,400|Montserrat:300,400" />
+    
+<link rel="stylesheet" type="text/css" href="/static/css/posts.css" />
+
+</head>
+
+<body>
+    
+    <div id="page">
+        <header>
+            <div id="site-name">
+                <a href="/">LUU.IO</a>
+            </div>
+            <div id="nav">
+                <ul id="nav-list">
+                    <li><a href="/posts">Blog Posts</a></li>
+                    <li><a href="/photos">Photo Gallery</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="container">
+            <main role="main">
+                
+<div class="post-container">
+    <h1 class="post-title">Set both background and font colors, or neither</h1>
+
+    <div class="post-body">
+        <div>
+            <ul class="additional small">
+                <li>Published on January 31, 2019</li>
+            </ul>
+            
+            <ul class="additional small">
+                <li>Tags:&nbsp;
+                    <a href="../_tags/#programming">programming</a>,&nbsp;
+                    <a href="../_tags/#ux">ux</a>
+                </li>
+            </ul>
+            
+        </div>
+        <div class="post-content"><p>Dear web developers,</p>
+<p>First of all, thanks for taking time to set the background color for your web pages and form elements.
+The light grey or is so much more pleasant than the default glaring white color.</p>
+<p>Though, that might be a problem for some users, especially those with a default dark theme on their systems. Let me demonstrate with some screenshots. I'll pick on Facebook first:</p>
+<center>
+<img src="files/fb-form-on-dark-theme.png" alt="Facebook form on dark theme" style="max-width: 600px" />
+</center>
+<p>What about the Dropbox login form?</p>
+<center>
+<img src="files/dropbox-login-form-dark-theme.png" alt="Dropbox login form on dark theme" style="max-width: 600px" />
+</center>
+<p>Google dictionary?</p>
+<center>
+<img src="files/google-dictionary-form-on-dark-theme.png" alt="Google dictionary form on dark theme" style="max-width: 600px" />
+</center>
+<p>Twitter 2FA form?</p>
+<center>
+<img src="files/twitter-2fac-dark-theme.png" alt="Twitter 2FA form on dark theme" style="max-width: 600px" />
+</center>
+<p>You get the idea. The cases I've shown here either set the background color without setting the text color, or vice versa.</p>
+<h2>So?</h2>
+<p>I understand that this is like one of those accessiblity things, where it wouldn't matter to most of your traffic--and you've got much bigger fish to fry.
+Though hopefully this article would come up in your head the next time you type <code>background-color</code> or <code>font-color</code> in your CSS file. And if you have a few moments to spare, I propose one of thse three options:</p>
+<ul>
+<li>Set the both the background color AND font color for your CSS selector, or</li>
+<li>Don't set the colors at all, let the browser use the system default color, or</li>
+<li>Add yet another <code>/* TODO */</code> in your codebase and call it a day. JK :-).</li>
+</ul>
+</div>
+    </div>
+</div>
+
+            </main>
+        </div>
+
+        <footer>
+            <div>Copyright 2019, Steven Luu</div>
+            <div>
+                This work is licensed under a&nbsp;
+                <a rel="license noopener noreferrer" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"
+                    target="_blank">
+                    Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+                </a>.
+            </div>
+            <div>The opinions expressed here are mine.</div>
+        </footer>
+    </div>
+
+    
+</body>
+
+</html>

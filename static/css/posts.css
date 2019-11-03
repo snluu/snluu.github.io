@@ -1,0 +1,28 @@
+.post-title a {
+text-decoration:none;
+}
+
+.post-content {
+margin-top:30px;
+font-family:Merriweather;
+font-weight:300;
+font-size:1.1em;
+}
+
+.post-content a {
+color:#2980b9;
+}
+
+.page-content img {
+max-width:100%;
+}
+
+td.post-date {
+    text-align: right;
+    padding-right: 10px;
+    color: #999999;
+}
+
+table.post-list {
+    border: 0;
+}

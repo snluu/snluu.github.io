@@ -1,0 +1,213 @@
+<html>
+
+<head>
+    <title>Happy Days</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+        integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="1800">
+    <style>
+        .forecast-ctr {
+            text-align: center;
+        }
+
+        .forecast-small {
+            font-size: small;
+        }
+
+        .forecast-xsmall {
+            font-size: x-small;
+        }
+
+        .forecast-icon {
+            width: 40px;
+            height: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Happy Days</a>
+    </nav>
+
+    <table id="forecastView" class="table table-striped">
+
+    </table>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        class Location {
+            constructor(name, lat, lon) {
+                this.name = name;
+                this.lat = lat;
+                this.lon = lon;
+            }
+        }
+
+        const LOCATIONS = [
+            new Location('Gold Bar, WA', 47.86000061, -121.69999695),
+            new Location('North Bend, WA', 47.502934, -121.768562),
+            new Location('Glacier, WA', 48.8839353, -121.862292),
+            new Location('Ashford, WA', 46.763149, -121.989616),
+            new Location('Longmire, WA', 46.73798, -121.970413),
+            new Location('La Push, WA', 47.90999985, -124.63999939),
+            new Location('Forks, WA', 47.936375, -124.569603),
+            new Location('Sandy, OR', 45.40000153, -122.26000214),
+            new Location('Government Camp, OR', 45.318356, -121.911232),
+        ];
+
+        let weatherForecastData = [];
+
+        function iso8601ToDate(s) {
+            let x = s.split(/[^0-9]/);
+            return new Date(x[0], x[1] - 1, x[2], x[3], x[4], x[5]);
+        }
+
+        function makeHourKey(forecast) {
+            let dt = iso8601ToDate(forecast.fcst_valid_local);
+            return 'x' + dt.getFullYear() + dt.getMonth() + dt.getDate() + dt.getHours();
+        }
+
+        function processWeatherForecasts() {
+            let commonHrs = {};
+            // count common hours
+            for (let i = 0; i < weatherForecastData.length; i++) {
+                let forecasts = weatherForecastData[i].forecasts;
+                for (let hr = 0; hr < forecasts.length; hr++) {
+                    let key = makeHourKey(forecasts[hr]);
+                    commonHrs[key] = (commonHrs[key] || 0) + 1;
+                }
+            }
+
+            let days = [];
+            let forecastLocations = [];
+            let phrases = {}; // [day][hour][locationIndex] == phrase
+            let temperatures = {}; // [day][hour][locationIndex] = temp
+            let feelsLike = {}; // [day][hour][locationIndex] = temp
+            let iconCodes = {}; // [day][hour][locationIndex] = code
+            let hoursInDay = {}; // [day] = [hours]
+
+            for (let i = 0; i < weatherForecastData.length && i < LOCATIONS.length; i++) {
+                let forecasts = weatherForecastData[i].forecasts;
+                let loc = LOCATIONS[i];
+                forecastLocations.push(loc.name);
+
+                for (let hr = 0; hr < forecasts.length; hr++) {
+                    let forecast = forecasts[hr];
+                    let key = makeHourKey(forecast);
+                    if (!commonHrs[key] || commonHrs[key] < weatherForecastData.length) {
+                        continue;
+                    }
+
+                    let dt = iso8601ToDate(forecast.fcst_valid_local);
+                    let date = dt.toLocaleDateString();
+                    let hour = dt.toLocaleTimeString();
+
+                    phrases[date] = phrases[date] || {};
+                    phrases[date][hour] = phrases[date][hour] || [];
+                    phrases[date][hour].push(forecast.phrase_22char);
+
+                    temperatures[date] = temperatures[date] || {};
+                    temperatures[date][hour] = temperatures[date][hour] || [];
+                    temperatures[date][hour].push(forecast.temp);
+
+                    feelsLike[date] = feelsLike[date] || {};
+                    feelsLike[date][hour] = feelsLike[date][hour] || [];
+                    feelsLike[date][hour].push(forecast.feels_like);
+
+                    iconCodes[date] = iconCodes[date] || {};
+                    iconCodes[date][hour] = iconCodes[date][hour] || [];
+                    iconCodes[date][hour].push(forecast.icon_code);
+
+                    if (!hoursInDay[date]) {
+                        hoursInDay[date] = [];
+                        days.push(date);
+                    }
+
+                    if (i == 0) {
+                        hoursInDay[date].push(hour);
+                    }
+                }
+            }
+
+            let html = [];
+
+            html.push('<tbody>');
+            for (let iDay = 0; iDay < days.length; iDay++) {
+                let date = days[iDay];
+                for (let iHour = 0; iHour < hoursInDay[date].length; iHour++) {
+                    let hour = hoursInDay[date][iHour];
+
+                    if (iHour % 6 === 0) {
+                        html.push(
+                            '<thead><tr>',
+                            '<th valign="middle">', date, '</th>'
+                        );
+                        for (let iLoc = 0; iLoc < forecastLocations.length; iLoc++) {
+                            html.push('<th class="forecast-ctr" valign="middle">', forecastLocations[iLoc], '</th>');
+                        }
+
+                        html.push('</tr></thead>');
+                    }
+
+
+
+                    html.push('<tr><td>', hour, '</td>');
+                    for (let iLoc = 0; iLoc < forecastLocations.length; iLoc++) {
+                        html.push('<td class="forecast-ctr">')
+                        html.push(
+                            '<div><img class="forecast-icon" border="0" src="https://icons.wxug.com/i/c/v4/',
+                            iconCodes[date][hour][iLoc],
+                            '.svg" /></div>',
+                        );
+                        html.push('<div class="forecast-small">', phrases[date][hour][iLoc], '</div>');
+                        html.push(
+                            '<div class="forecast-xsmall">',
+                            temperatures[date][hour][iLoc], ' &#8457/',
+                            feelsLike[date][hour][iLoc], ' &#8457;',
+                            '</div>');
+                        html.push('</td>');
+                    }
+
+                    html.push('</tr>')
+                }
+            }
+
+            html.push('</tbody>');
+            let htmlStr = html.join('');
+            console.log(htmlStr);
+
+            const table = document.getElementById('forecastView');
+            table.innerHTML = htmlStr;
+        }
+
+        function load240hrWeather(locationIndex) {
+            const loc = LOCATIONS[locationIndex];
+            console.log(loc.name, '-- Loading 240hr weather');
+
+            const url =
+                'https://api.weather.com/v1/geocode/' +
+                loc.lat + '/' + loc.lon +
+                '/forecast/hourly/240hour.json?apiKey=6532d6454b8aa370768e63d6ba5a832e&units=e';
+
+            axios.get(url)
+                .then(response => {
+                    console.log(loc.name, '-- 240hr loaded');
+
+                    weatherForecastData.push(response.data);
+                    processWeatherForecasts();
+
+                    if (locationIndex < LOCATIONS.length - 1) {
+                        setTimeout(() => load240hrWeather(locationIndex + 1), 500);
+                    }
+                })
+                .catch(error => {
+                    console.log(loc.name, '-- 240hr weather for failed:', error);
+                });
+        }
+
+        load240hrWeather(0);
+    </script>
+</body>
+
+</html>
