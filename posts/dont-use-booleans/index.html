@@ -74,9 +74,11 @@ Though in general, I believe the use of enums is often a better choice compared 
   FetchOptions::History | FetchOptions::Details,
 );
 </code></pre>
+<p>Notice the difference between the <code>ItemStatus</code> and <code>FetchOptions</code> enums. One is an exlusive enum (i.e. each item can only have one of the boolean values) and one is a bit-mask flags.</p>
 <h3>Explicit typing</h3>
 <p>Why would you want explicit typing? Imaging staying up late fixing a bug and calling this <code>fetch</code> function. If you're like me, there's a high probability that you'll cross your eyes and pass true/false in the wrong places, calling <code>fetch(false, true, false)</code> instead of <code>fetch(true, false, false)</code>. Your tests would have needed to have all the permutations of the booleans to catch that issue. And good luck spotting the issue even if your tests failed.</p>
 <p>With the enum version of the API, you can't accidentally call <code>fetch(FetchOptions::History, {ItemStatus::Active})</code>. The compiler or interpreter should bark pretty loudly in this case.</p>
+<p>If your programming language allows, use explicit bit-mask types instead of <code>int</code>. This will make sure that the call site cannot accidentally pass in the wrong flags.</p>
 <h3>Behavior Driven &amp; Extendability</h3>
 <p>Whenever I was about to use booleans and stepped back to consider using enums as an alternative, I often found myself going over the actual use-cases, or the behaviors and states of the application. It's easy to just slap on another boolean at that point in time without considering the actual use-case or the behavior of the API. Let's look at our <code>fetch</code> API again; boolean signature is:</p>
 <pre><code>fetch(
