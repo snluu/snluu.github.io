@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Using the Crystal compiler API - LUU.IO</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css" />
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Merriweather:300,300i,400|Montserrat:300,400" />
+    
+<link rel="stylesheet" type="text/css" href="/static/css/posts.css" />
+
+</head>
+
+<body>
+    
+    <div id="page">
+        <header>
+            <div id="site-name">
+                <a href="/">LUU.IO</a>
+            </div>
+            <div id="nav">
+                <ul id="nav-list">
+                    <li><a href="/posts">Blog Posts</a></li>
+                    <li><a href="/photos">Photo Gallery</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="container">
+            <main role="main">
+                
+<div class="post-container">
+    <h1 class="post-title">Using the Crystal compiler API</h1>
+
+    <div class="post-body">
+        <div>
+            <ul class="additional small">
+                <li>Published on January  1, 2020</li>
+            </ul>
+            
+            <ul class="additional small">
+                <li>Tags:&nbsp;
+                    <a href="../_tags/#crystal">crystal</a>,&nbsp;
+                    <a href="../_tags/#programming">programming</a>
+                </li>
+            </ul>
+            
+        </div>
+        <div class="post-content"><p>In one of my projects, I needed the ability to generate an <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a> from valid <a href="//crystal-lang.org/">Crystal</a> code. I couldn't find any documentation about using the Crystal compiler API's, only gathered information here and there from random GitHub issues–thought I'd write things down here for the next person. Hope it's helpful for you:</p>
+<h3>As of v0.32.1</h3>
+<p>You can parse Crystal code for an AST tree by using <code>Crystal::Parser</code> from the <code>syntax</code> module:</p>
+<pre><code>require &quot;compiler/crystal/syntax&quot;
+
+parser = Crystal::Parser.new(&quot;class HelloWorld\nend&quot;)
+
+# This will give you a Crystal::ASTNode
+ast = parser.parse
+</code></pre>
+<p><code>Crystal::ASTNode</code> is the parent class for all AST nodes. You can find the different AST node types here: <a href="https://github.com/crystal-lang/crystal/blob/0.32.1/src/compiler/crystal/syntax/ast.cr">https://github.com/crystal-lang/crystal/blob/0.32.1/src/compiler/crystal/syntax/ast.cr</a>. You'll need to use the <code>.class</code>, <code>.is_a?</code>, ... API's to work with the specific types.</p>
+<blockquote>
+<p>A small gotcha: beware that <a href="https://github.com/crystal-lang/crystal/blob/0.32.1/src/compiler/crystal/syntax/ast.cr#L1264"><code>class Path &lt; ASTNode</code></a> collides with <a href="https://crystal-lang.org/api/0.32.1/Path.html"><code>struct Path</code></a>. You'll have to use the fully qualified <code>::Crystal::Path</code> when referring to it.</p>
+</blockquote>
+<p>Another thing that comes with the syntax module is <code>Crystal::Transformer</code>. This lets you inspect/transform different node types. For example:</p>
+<pre><code># ... continue from above
+
+class MyTransformer &lt; Crystal::Transformer
+  def transform(node : Crystal::ClassDef) : Crystal::ASTNode
+    puts &quot;Class definition for #{node.name} at #{node.location}&quot;
+    super(node)
+  end
+end
+
+tx = MyTransformer.new
+transformer = ast.transform(tx)
+</code></pre>
+<h3>Older versions</h3>
+<p>According to this <a href="https://github.com/crystal-lang/crystal/issues/65">GitHub issue</a>, seems like the modules were in a different place in older versions:</p>
+<pre><code>require &quot;compiler/crystal/parser&quot;
+require &quot;compiler/crystal/transformer&quot;
+</code></pre>
+</div>
+    </div>
+</div>
+
+            </main>
+        </div>
+
+        <footer>
+            <div>Copyright 2020, Steven Luu</div>
+            <div>
+                This work is licensed under a&nbsp;
+                <a rel="license noopener noreferrer" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"
+                    target="_blank">
+                    Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+                </a>.
+            </div>
+            <div>The opinions expressed here are mine.</div>
+        </footer>
+    </div>
+
+    
+</body>
+
+</html>
