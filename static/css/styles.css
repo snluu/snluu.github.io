@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Merriweather:300,300i,400,400i|Montserrat:200,200i,300,300i,400,400i&display=swap');
+
 body {
 line-height:1.6;
 font:1em Montserrat,arial,sans-serif;
@@ -63,7 +65,7 @@ padding:.5em 1em;
 }
 
 code {
-font-size:1.2em;
+font-size:1.1em;
 }
 
 #page {
