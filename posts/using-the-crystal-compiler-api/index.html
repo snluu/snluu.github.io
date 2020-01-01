@@ -76,7 +76,7 @@ class MyTransformer &lt; Crystal::Transformer
 end
 
 tx = MyTransformer.new
-transformer = ast.transform(tx)
+transformed_node = ast.transform(tx)
 </code></pre>
 <h3>Older versions</h3>
 <p>According to this <a href="https://github.com/crystal-lang/crystal/issues/65">GitHub issue</a>, seems like the modules were in a different place in older versions:</p>
