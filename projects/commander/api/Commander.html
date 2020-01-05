@@ -110,7 +110,7 @@ passing in a max concurrency at the time of initialization.</p>
   </h2>
   
     
-      <a href="https://github.com/snluu/commander/blob/7f9b5ae3966d62360201b4ab9dc45a4becfc2ca7/src/commander.cr#L4" target="_blank">
+      <a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L4" target="_blank">
         commander.cr
       </a>
     
@@ -118,6 +118,25 @@ passing in a max concurrency at the time of initialization.</p>
   
 
 
+
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="DEFAULT_RESULT_CAPACITY">
+        <strong>DEFAULT_RESULT_CAPACITY</strong> = <code><span class="n">1024</span></code>
+      </dt>
+      
+    
+  </dl>
 
 
 
@@ -132,15 +151,48 @@ passing in a max concurrency at the time of initialization.</p>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new(max_concurrency=0)-class-method" class="signature"><strong>.new</strong>(max_concurrency = <span class="n">0</span>)</a>
+        <a href="#new(result_capacity,max_concurrency)-class-method" class="signature"><strong>.new</strong>(result_capacity, max_concurrency)</a>
         
           <div class="summary"><p>Initializes a new instance of this class with the given max concurrency.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        
+          <div class="summary"><p>Initializes a new instance with the default result capacity, and no concurrency limit.</p></div>
         
       </li>
     
   </ul>
 
 
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#with_capacity(result_capacity)-class-method" class="signature"><strong>.with_capacity</strong>(result_capacity)</a>
+        
+          <div class="summary"><p>Creates a new instance with the given result capacity, without concurrency limit.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#with_concurrency_limit(max_concurrency)-class-method" class="signature"><strong>.with_concurrency_limit</strong>(max_concurrency)</a>
+        
+          <div class="summary"><p>Creates a new instance with a concurrency limit, using the default result capacity.</p></div>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -170,6 +222,8 @@ passing in a max concurrency at the time of initialization.</p>
     
       <li class="entry-summary">
         <a href="#dispatch(&block:-%3ET)-instance-method" class="signature"><strong>#dispatch</strong>(&block :  -> T)</a>
+        
+          <div class="summary"><p>Dispatches the given block to run in a new fiber.</p></div>
         
       </li>
     
@@ -220,12 +274,12 @@ passing in a max concurrency at the time of initialization.</p>
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(max_concurrency=0)-class-method">
+    <div class="entry-detail" id="new(result_capacity,max_concurrency)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(max_concurrency = <span class="n">0</span>)
+        def self.<strong>new</strong>(result_capacity, max_concurrency)
 
-        <a class="method-permalink" href="#new(max_concurrency=0)-class-method">#</a>
+        <a class="method-permalink" href="#new(result_capacity,max_concurrency)-class-method">#</a>
       </div>
       
         <div class="doc">
@@ -238,13 +292,89 @@ All dispatched job will run concurrently if max concurrency is set to zero.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/snluu/commander/blob/7f9b5ae3966d62360201b4ab9dc45a4becfc2ca7/src/commander.cr#L14" target="_blank">View source</a>]
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L34" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Initializes a new instance with the default result capacity,
+and no concurrency limit.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L27" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="with_capacity(result_capacity)-class-method">
+      <div class="signature">
+        
+        def self.<strong>with_capacity</strong>(result_capacity)
+
+        <a class="method-permalink" href="#with_capacity(result_capacity)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a new instance with the given result capacity,
+without concurrency limit.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L21" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="with_concurrency_limit(max_concurrency)-class-method">
+      <div class="signature">
+        
+        def self.<strong>with_concurrency_limit</strong>(max_concurrency)
+
+        <a class="method-permalink" href="#with_concurrency_limit(max_concurrency)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a new instance with a concurrency limit,
+using the default result capacity.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L15" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
 
 
 
@@ -275,7 +405,7 @@ This function will raise the first error that it received from any of the dispat
       <br/>
       <div>
         
-          [<a href="https://github.com/snluu/commander/blob/7f9b5ae3966d62360201b4ab9dc45a4becfc2ca7/src/commander.cr#L70" target="_blank">View source</a>]
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L93" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -299,7 +429,7 @@ The exceptions are wrapped in <code><a href="Commander/Try.html">Try</a>(T)</cod
       <br/>
       <div>
         
-          [<a href="https://github.com/snluu/commander/blob/7f9b5ae3966d62360201b4ab9dc45a4becfc2ca7/src/commander.cr#L56" target="_blank">View source</a>]
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L79" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -312,10 +442,17 @@ The exceptions are wrapped in <code><a href="Commander/Try.html">Try</a>(T)</cod
         <a class="method-permalink" href="#dispatch(&block:-%3ET)-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Dispatches the given block to run in a new fiber.
+<strong>Note</strong>: the spawned fiber will block if max concurrency is hit,
+and will only proceed to invoke the given block when previously spawned fibers finishes.</p>
+        </div>
+      
       <br/>
       <div>
         
-          [<a href="https://github.com/snluu/commander/blob/7f9b5ae3966d62360201b4ab9dc45a4becfc2ca7/src/commander.cr#L29" target="_blank">View source</a>]
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L52" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -336,7 +473,7 @@ The exceptions are wrapped in <code><a href="Commander/Try.html">Try</a>(T)</cod
       <br/>
       <div>
         
-          [<a href="https://github.com/snluu/commander/blob/7f9b5ae3966d62360201b4ab9dc45a4becfc2ca7/src/commander.cr#L9" target="_blank">View source</a>]
+          [<a href="https://github.com/snluu/commander/blob/3d7407b2ed0378980db0aca1370436b096403e0d/src/commander.cr#L11" target="_blank">View source</a>]
         
       </div>
     </div>
