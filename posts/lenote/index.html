@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>From Rust to WebAssembly: building an interactive note-taking webapp with Actix &amp; Yew - LUU.IO</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css" />
+    
+<link rel="stylesheet" type="text/css" href="/static/css/posts.css" />
+
+</head>
+
+<body>
+    
+    <div id="page">
+        <header>
+            <div id="site-name">
+                <a href="/">LUU.IO</a>
+            </div>
+            <div id="nav">
+                <ul id="nav-list">
+                    <li><a href="/posts">Blog Posts</a></li>
+                    <li><a href="/photos">Photo Gallery</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="container">
+            <main role="main">
+                
+<div class="post-container">
+    <h1 class="post-title">From Rust to WebAssembly: building an interactive note-taking webapp with Actix &amp; Yew</h1>
+
+    <div class="post-body">
+        <div>
+            <ul class="additional small">
+                <li>Published on March  8, 2020</li>
+            </ul>
+            
+            <ul class="additional small">
+                <li>Tags:&nbsp;
+                    <a href="../_tags/#rust">rust</a>,&nbsp;
+                    <a href="../_tags/#programming">programming</a>,&nbsp;
+                    <a href="../_tags/#wasm">wasm</a>
+                </li>
+            </ul>
+            
+        </div>
+        <div class="post-content"><p>In this blog post, I want to introduce the personal note taking app that I wrote for myself. I want to highlight the use-case that I'm looking to solve, as well as the challenges that I ran into with the tech stack and how I solved them.</p>
+<p>As you might have read in the title, I used <a href="//actix.rs/">Actix</a> and <a href="//yew.rs">Yew</a> to build this note taking app. I'm not going to do a complete walk-through/tutorial since they have pretty decent documentation &amp; tutorials. Instead, I'll walk through the things that didn't quite work out of the box, which I had to find my own solutions for.</p>
+<h2>The use-case</h2>
+<p>The use-case for this note taking app is relatively simple. Since I'm not the most organized note-taker in the world, I want something that will just let me start typing, without having to think about which folder or category they should go into. In this sense, I'm heavily leveraging tags to put come back to these notes later.</p>
+<p>As I enter each note, the app will detect the tags and index them appropriately. The advantage of this approach, for me, is to be able to have more than one tag or one category for each note, rather than having to make the conscious decision of where the note belongs when I just wanted to start typing:</p>
+<p><img src="files/lenote-main.png" alt="Lenote Main Note Taking Screen" /></p>
+<p>Later, I can revisit each tag to follow up and archive them once I'm done. I can also look through the messages before or after the tag. This is especially useful for when I need to just continuously enter notes, without having to add a tag for each of them, or maybe adding the tag after the fact:</p>
+<p><img src="files/lenote-view-tags.png" alt="Lenote View Tag Screen" /></p>
+<p>There are other features that I'm looking to add; for example: taking note to reply to a tag while working on the item, note searching, etc. That's for future me to work on.</p>
+<h2>The benefits of a webapp running locally</h2>
+<p>Coming into this project, the first decision I made was that this app will work locally. I don't need to access it across the internet. This freed me up to make technical choices that simplified the solution:</p>
+<ul>
+<li>Since the web server is localhost, I can somewhat abuse the number of round trips between the client and the server, without having to dig into handling data over websocket.</li>
+<li>Along that line, with a localhost server, I can afford for the payload to be big &amp; optimized. For example, when you paste an image, it is uploaded as a base64 string inside a JSON field (see below).</li>
+<li>Since it's an app that runs locally on one machine, I decided to use Sqlite as data storage, greatly simplifying deployment.</li>
+</ul>
+<blockquote>
+<p>If this sounds like a perfect fit for a desktop app, it is! However, the state of desktop UI in the Rust ecosystem isn't quite mature yet. The benefit of running it as a web app allows me to run it virtually any system with web browser, without the additional burden of managing installation of Qt or some other massive UI library.</p>
+</blockquote>
+<h2>The tech stack &amp; development workflow</h2>
+<h3>Project Setup</h3>
+<p>If you're unfamiliar with Yew, think of it as something like React or Angular, except that you write your components in Rust. This Rust code gets compiled down to WebAssembly, and you can run it in the browsers.</p>
+<p>Since this WebAssembly runs in the browser, you get the Rust language and <strong>most</strong> of the standard library. The parts you don't get are the ones that require making syscalls, for example, accessing the file system, calling <code>SystemTime::now()</code> or the <code>rand</code> crate to generate random numbers. Luckily, we can interop with JavaScript for those operations (more on that later). This means we'll still need to break this app into two parts. Compiling from rust to WebAssembly requires either <code>wasm-pack build</code> or <code>cargo web build</code> and does not work with <code>cargo build</code> yet, these two parts also represent two different cargo projects:</p>
+<ul>
+<li><strong>The Server:</strong> this produces a normal binary that runs <strong>outside</strong> the browser and can do anything we want: access the file system, accessing the Sqlite file, etc. This server part is responsible for the HTTP server that will serve the actual web pages, and the JavaScript and WebAssembly files to the browser. This is just a good old <code>cargo build</code> project.</li>
+<li><strong>The Client:</strong> this produces the JavaScript and WebAssembly files that will be served to the browser. For this project, I chose <code>wasm-pack build</code>. </li>
+</ul>
+<p>Breaking the app into two separate projects introduces a bit of a complication. Namely, when building the two projects, the output each goes into their own <code>target</code> folder. There are fancy <code>build.rs</code> scripts out there that perform a bunch of magic. I just keep it simple and pass a <a href="//github.com/snluu/lenote-mirror/blob/master/lenote-server/src/main.rs#L39-L44">command line argument</a> into the server executable to indicate the folder from where it should serve the JavaScript and WebAssembly files.</p>
+<h3>Auto-reloading</h3>
+<p>Out of the box, <a href="//actix.rs/docs/autoreload/">Actix-Web supports auto-reloading</a>. However, one thing I don't like about their current support is that it requires altering &quot;production&quot; code to add <code>ListenFd</code> into the listening stack. Moreover, I also want to automate building the client files as I make code changes–using similar commands.</p>
+<p>I ended up using <a href="//github.com/emcrisostomo/fswatch">fswatch</a> to watch for changes in each folder and run build commands for each. For the server side, I have to run an additional <code>kill</code> command in order to kill running server process.</p>
+<script src="https://gist.github.com/snluu/a2897cc9c52c4028fa58ecdae0ea6341.js"></script>
+<h2>Development challenges &amp; solutions</h2>
+<blockquote>
+<p>You can find a mirror of the project source code at <a href="https://github.com/snluu/lenote-mirror">https://github.com/snluu/lenote-mirror</a>.</p>
+</blockquote>
+<p>For the most part, things work well out of the box with both Actix and Yew. There were a few kinks that I had to work through to get things working.</p>
+<h3>Switch from cargo-web to wasm-pack</h3>
+<p>When I started this project, Yew 0.12 was the latest supported version, all their documentation used <code>cargo web</code>–so I followed suit. There was one particular annoying thing with with cargo web: its build output generates a JavaScript file and a WebAssembly file that are tightly coupled, and this JavaScript file always tries to load the WebAssembly file from a path <strong>relative to the current URL</strong>. This means, when the app loads different pages at <code>/app/main</code> or <code>/app/tag</code>, it will try to load <code>/app/main/lenote.wasm</code> and <code>/app/tag/lenote.wasm</code>, even though they are the same file. This resulted in having to setup the server side with a bunch of different routes and redirection.</p>
+<p>On the other hand, <code>wasm-pack</code> generate files that export an <code>init</code> function, allowing a bit more control over the path of the generated JS and WASM files. This allows me to pin the WASM for the URL file to start at the domain root:</p>
+<script src="https://gist.github.com/snluu/c00b084accfa2667d335d4b72ee23061.js"></script>
+<h3>Scroll to the bottom of the note viewer</h3>
+<p>One of the features I wanted was that the main canvas showing the notes would scroll to the bottom to display the newest note, as you type and hit enter to submit the note; similar to how your chat window would scroll to the bottom when sending a message.</p>
+<p>The operation to scroll to the bottom itself is quite simple, just set the <code>scrollTop</code> value of the <code>div</code> to some really big number. One can do that using Yew's support for component reference and <a href="//github.com/snluu/lenote-mirror/blob/master/lenote-ui/src/components/note_canvas.rs#L125">casting it to a web_sys or stdweb element</a>. Though, this is something that didn't quite work out of the box with Yew due to its order of operation. I couldn't find any documentation, but basing on my experimentation, Yew would render the outer note container first (the div that we actually need to scroll), and then insert the DOM for the new note.</p>
+<p>Due to that order of operation, setting <code>scrollTop</code> immediately would scroll to the bottom of the div, <strong>before</strong> the new DOM is in place. To work around this issue, one ought to <a href="//github.com/snluu/lenote-mirror/blob/master/lenote-ui/src/components/note_canvas.rs#L145">send another message</a> before returning <code>true</code> for &quot;should re-render&quot;. This message will be put in a queue somewhere (presumably?) and will get called <strong>after</strong> the rendering of the new DOM completed. We can then set the <code>scrollTop</code> value in this step. </p>
+<h3>Paste images into the textarea</h3>
+<p>When taking note, I use a lot of screenshots. I wanted a convenient way to save and embed those images into my notes without the clunky process of saving a screenshot to file, select it to upload, etc. The screenshot utilities I use are all capable of storing it in the clipboard, so I wanted the ability to just paste the image into my note editor.</p>
+<p>Even though you can't display photos in a TextArea element, the <code>onPaste</code> event of the TextArea can actually receive image data. Yew uses an <code>html!</code> Rust macro that allows you write HTML-ish code when rendering the view for a component. However, this is actual Rust code, not just any string; meaning someone has had to port these elements and attributes into Yew or web_sys before you can use it. At the time of implementation, the TextArea element <a href="//github.com/snluu/lenote-mirror/blob/master/lenote-ui/src/components/note_input.rs#L138-L144">supported some main events and allowed me to specify callbacks into Rust code, but I was only able to give <code>onPaste</code> a string</a>, as if writing raw HTML. The <code>handleInputPaste</code> here is just a good old function that is callable from JavaScript. It will fire a callback when upon detecting an image from the from the <code>ClipboardEvent</code>. In order to get the callback working, the component also <a href="https://github.com/snluu/lenote-mirror/blob/master/lenote-ui/src/components/note_input.rs#L89">calls a JavaScript function to register the callback when mounted</a>.</p>
+<blockquote>
+<p>Initially, I wanted to implement this <code>handleInputPaste</code> function in Rust and export it as a JS function using wasm_bindgen. Though, neither Yew, web_sys, nor js_sys had support for the <code>ClipboardEvent</code> class when I implemented the feature, so I just <a href="//github.com/snluu/lenote-mirror/blob/master/pages/static/js/img_paste.js">implemented it in JavaScript</a>.</p>
+</blockquote>
+<h2>Summary</h2>
+<p>Overall, the development experience was quite pleasant with most things supported out of the box between Rust, wasm_bindgen, Yew, web_sys, js_sys, etc. I'm mainly a backend developer so I don't have a lot of prior experience for comparison, though I felt relatively productive throughout the project without having to spend a lot of time debugging and fighting undefined behaviors.</p>
+<blockquote>
+<p>Through random reading on the interwebs, some benchmark showed that Yew might be slower compared to React, Ember, etc. in terms of raw performance. The only time I ran into performance issues was when I attempted to display 10,000 messages at once (30,000 DOM's?). The DOM-delta calculation took a second or two. That was a bit overkilled anyway and the performance issue went away when I dialed it back down to 500 messages.</p>
+</blockquote>
+</div>
+    </div>
+</div>
+
+            </main>
+        </div>
+
+        <footer>
+            <div>Copyright 2020, Steven Luu</div>
+            <div>
+                This work is licensed under a&nbsp;
+                <a rel="license noopener noreferrer" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"
+                    target="_blank">
+                    Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+                </a>.
+            </div>
+            <div>The opinions expressed here are mine.</div>
+        </footer>
+    </div>
+
+    
+</body>
+
+</html>

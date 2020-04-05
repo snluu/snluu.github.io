@@ -13,8 +13,17 @@ font-size:1.1em;
 color:#2980b9;
 }
 
-.page-content img {
-max-width:100%;
+.post-content blockquote {
+    margin: 0;
+    padding-left: 15px;
+    font-style: italic;
+    border-left-width: 3px;
+    border-left-style: solid;
+    border-left-color: darkgray;
+}
+
+.page-content img, .post-content img {
+    max-width:100%;
 }
 
 td.post-date {
