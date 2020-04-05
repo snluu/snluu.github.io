@@ -68,7 +68,7 @@
 <p>Coming into this project, the first decision I made was that this app will work locally. I don't need to access it across the internet. This freed me up to make technical choices that simplified the solution:</p>
 <ul>
 <li>Since the web server is localhost, I can somewhat abuse the number of round trips between the client and the server, without having to dig into handling data over websocket.</li>
-<li>Along that line, with a localhost server, I can afford for the payload to be big &amp; optimized. For example, when you paste an image, it is uploaded as a base64 string inside a JSON field (see below).</li>
+<li>Along that line, with a localhost server, I can afford for the payload to be big and unoptimized. For example, when you paste an image, it is uploaded as a base64 string inside a JSON field (see below).</li>
 <li>Since it's an app that runs locally on one machine, I decided to use Sqlite as data storage, greatly simplifying deployment.</li>
 </ul>
 <blockquote>
