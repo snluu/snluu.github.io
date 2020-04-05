@@ -54,6 +54,9 @@
         </div>
         <div class="post-content"><p>In this blog post, I want to introduce the personal note taking app that I wrote for myself. I want to highlight the use-case that I'm looking to solve, as well as the challenges that I ran into with the tech stack and how I solved them.</p>
 <p>As you might have read in the title, I used <a href="//actix.rs/">Actix</a> and <a href="//yew.rs">Yew</a> to build this note taking app. I'm not going to do a complete walk-through/tutorial since they have pretty decent documentation &amp; tutorials. Instead, I'll walk through the things that didn't quite work out of the box, which I had to find my own solutions for.</p>
+<blockquote>
+<p>You can find a mirror of the project source code at <a href="https://github.com/snluu/lenote-mirror">https://github.com/snluu/lenote-mirror</a>.</p>
+</blockquote>
 <h2>The use-case</h2>
 <p>The use-case for this note taking app is relatively simple. Since I'm not the most organized note-taker in the world, I want something that will just let me start typing, without having to think about which folder or category they should go into. In this sense, I'm heavily leveraging tags to put come back to these notes later.</p>
 <p>As I enter each note, the app will detect the tags and index them appropriately. The advantage of this approach, for me, is to be able to have more than one tag or one category for each note, rather than having to make the conscious decision of where the note belongs when I just wanted to start typing:</p>
@@ -74,10 +77,10 @@
 <h2>The tech stack &amp; development workflow</h2>
 <h3>Project Setup</h3>
 <p>If you're unfamiliar with Yew, think of it as something like React or Angular, except that you write your components in Rust. This Rust code gets compiled down to WebAssembly, and you can run it in the browsers.</p>
-<p>Since this WebAssembly runs in the browser, you get the Rust language and <strong>most</strong> of the standard library. The parts you don't get are the ones that require making syscalls, for example, accessing the file system, calling <code>SystemTime::now()</code> or the <code>rand</code> crate to generate random numbers. Luckily, we can interop with JavaScript for those operations (more on that later). This means we'll still need to break this app into two parts. Compiling from rust to WebAssembly requires either <code>wasm-pack build</code> or <code>cargo web build</code> and does not work with <code>cargo build</code> yet, these two parts also represent two different cargo projects:</p>
+<p>Since this WebAssembly runs in the browser, you get the Rust language and <strong>most</strong> of the standard library. The parts you don't get are the ones that require making syscalls, for example, accessing the file system, calling <code>SystemTime::now()</code> or the <code>rand</code> crate to generate random numbers. Luckily, we can interop with JavaScript for those operations (more on that later). This means we'll still need to break this app into two parts. These two parts also represent two different cargo projects:</p>
 <ul>
 <li><strong>The Server:</strong> this produces a normal binary that runs <strong>outside</strong> the browser and can do anything we want: access the file system, accessing the Sqlite file, etc. This server part is responsible for the HTTP server that will serve the actual web pages, and the JavaScript and WebAssembly files to the browser. This is just a good old <code>cargo build</code> project.</li>
-<li><strong>The Client:</strong> this produces the JavaScript and WebAssembly files that will be served to the browser. For this project, I chose <code>wasm-pack build</code>. </li>
+<li><strong>The Client:</strong> this produces the JavaScript and WebAssembly files that will be served to the browser. Compiling from rust to WebAssembly requires either <code>wasm-pack build</code> or <code>cargo web build</code> and does not work with <code>cargo build</code> yet. For this project, I ended up using <code>wasm-pack build</code> (see the &quot;Switch from cargo-web to wasm-pack&quot; section below). </li>
 </ul>
 <p>Breaking the app into two separate projects introduces a bit of a complication. Namely, when building the two projects, the output each goes into their own <code>target</code> folder. There are fancy <code>build.rs</code> scripts out there that perform a bunch of magic. I just keep it simple and pass a <a href="//github.com/snluu/lenote-mirror/blob/master/lenote-server/src/main.rs#L39-L44">command line argument</a> into the server executable to indicate the folder from where it should serve the JavaScript and WebAssembly files.</p>
 <h3>Auto-reloading</h3>
@@ -85,9 +88,6 @@
 <p>I ended up using <a href="//github.com/emcrisostomo/fswatch">fswatch</a> to watch for changes in each folder and run build commands for each. For the server side, I have to run an additional <code>kill</code> command in order to kill running server process.</p>
 <script src="https://gist.github.com/snluu/a2897cc9c52c4028fa58ecdae0ea6341.js"></script>
 <h2>Development challenges &amp; solutions</h2>
-<blockquote>
-<p>You can find a mirror of the project source code at <a href="https://github.com/snluu/lenote-mirror">https://github.com/snluu/lenote-mirror</a>.</p>
-</blockquote>
 <p>For the most part, things work well out of the box with both Actix and Yew. There were a few kinks that I had to work through to get things working.</p>
 <h3>Switch from cargo-web to wasm-pack</h3>
 <p>When I started this project, Yew 0.12 was the latest supported version, all their documentation used <code>cargo web</code>–so I followed suit. There was one particular annoying thing with with cargo web: its build output generates a JavaScript file and a WebAssembly file that are tightly coupled, and this JavaScript file always tries to load the WebAssembly file from a path <strong>relative to the current URL</strong>. This means, when the app loads different pages at <code>/app/main</code> or <code>/app/tag</code>, it will try to load <code>/app/main/lenote.wasm</code> and <code>/app/tag/lenote.wasm</code>, even though they are the same file. This resulted in having to setup the server side with a bunch of different routes and redirection.</p>
