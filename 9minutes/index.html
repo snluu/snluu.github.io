@@ -24,7 +24,7 @@
             font-size: 8em;
             color: #dfe6e9;
             font-family: Arial, Helvetica, sans-serif;
-            margin-top: 20%;
+            margin-top: 15%;
         }
 
         .btn {
@@ -85,16 +85,23 @@
     <script>
         var LINES = {
             521: "&ldquo;Please, please, please! I can't breathe!&rdquo;",
-            496: "&ldquo;Please man.&rdquo;",
+            496: "&ldquo;Please man...&rdquo;",
             486: "&ldquo;I can't breathe.&rdquo;",
             474: "&ldquo;I'm about to die.&rdquo;",
             463: "&ldquo;I can't breathe.&rdquo;",
             435: "&ldquo;Mama! Mama!&rdquo;",
             379: "&ldquo;Everything hurts. Some water or something, please.&rdquo;",
-            349: "&ldquo;I can't breathe officer.&rdquo; &ldquo;They gonna kill me.&rdquo;",
+            349: "&ldquo;I can't breathe officer.&rdquo;<br />&ldquo;They're gonna kill me.&rdquo;",
             227: "(Bystander) &ldquo;He's not responsive right now!&rdquo;",
             107: "(Bystander) &ldquo;He's not fucking moving!&rdquo;",
-            0: "For 9 minutes, George Floyd had a knee with full body weight on his neck, despite himself and bystanders crying out to the aggressor."
+            0: ("For 9 minutes, George Floyd had a knee with full body weight on his neck," +
+                "<br />despite himself and bystanders crying out to the aggressor.<br /><br />" +
+                "His body became unresponsive after about 5 minutes.<br /><br />" +
+                "<a target=\"_blank\" href=\"https://www.gofundme.com/f/georgefloyd\">Official George Floyd Memorial Fund on gofundme.com</a><br /><br />" +
+                "<a target=\"_blank\" href=\"https://minnesotafreedomfund.org/\">The Minnesota Freedom Fund</a><br /><br />" +
+                "<a target=\"_blank\" href=\"https://www.change.org/p/mayor-jacob-frey-justice-for-george-floyd\">Justice for George Floyd petition on change.org</a><br /><br />" +
+                "<a target=\"_blank\" href=\"https://www.rollingstone.com/culture/culture-news/george-floyd-protests-bail-funds-police-brutality-black-lives-matter-1008259/\">More resources to help out protestors</a><br /><br />"
+            )
         };
 
         var TotalTime = 8 * 60 + 45;
@@ -125,7 +132,10 @@
                 LinesField.innerHTML = '';
 
                 var nextLine = document.createElement("DIV");
-                nextLine.className = "fade-in";
+                if (TotalTime > 0) {
+                    nextLine.className = "fade-in";
+                }
+
                 nextLine.innerHTML = line;
 
                 LinesField.appendChild(nextLine);
