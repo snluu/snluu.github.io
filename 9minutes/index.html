@@ -1,0 +1,158 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>9 Minutes</title>
+
+    <style>
+        body {
+            background-color: #2d3436;
+        }
+
+        a {
+            color: #74b9ff;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .time {
+            font-size: 8em;
+            color: #dfe6e9;
+            font-family: Arial, Helvetica, sans-serif;
+            margin-top: 20%;
+        }
+
+        .btn {
+            font-size: x-large;
+        }
+
+        .lines {
+            font-size: 2em;
+            font-family: Times, 'Times New Roman', serif;
+            font-style: italic;
+            color: white;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .fade-in {
+            animation: fadeIn ease 5s;
+            -webkit-animation: fadeIn ease 5s;
+            -moz-animation: fadeIn ease 5s;
+            -o-animation: fadeIn ease 5s;
+            -ms-animation: fadeIn ease 5s;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            20% {
+                opacity: 1;
+            }
+        }
+
+        @-moz-keyframes fadeIn {
+            20% {
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes fadeIn {
+            20% {
+                opacity: 1;
+            }
+        }
+
+        @-o-keyframes fadeIn {
+            20% {
+                opacity: 1;
+            }
+        }
+
+        @-ms-keyframes fadeIn {
+            20% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var LINES = {
+            521: "&ldquo;Please, please, please! I can't breathe!&rdquo;",
+            496: "&ldquo;Please man.&rdquo;",
+            486: "&ldquo;I can't breathe.&rdquo;",
+            474: "&ldquo;I'm about to die.&rdquo;",
+            463: "&ldquo;I can't breathe.&rdquo;",
+            435: "&ldquo;Mama! Mama!&rdquo;",
+            379: "&ldquo;Everything hurts. Some water or something, please.&rdquo;",
+            349: "&ldquo;I can't breathe officer.&rdquo; &ldquo;They gonna kill me.&rdquo;",
+            227: "(Bystander) &ldquo;He's not responsive right now!&rdquo;",
+            107: "(Bystander) &ldquo;He's not fucking moving!&rdquo;",
+            0: "For 9 minutes, George Floyd had a knee with full body weight on his neck, despite himself and bystanders crying out to the aggressor."
+        };
+
+        var TotalTime = 8 * 60 + 45;
+        var TimeField = undefined;
+        var LinesField = undefined;
+        var Timer = undefined;
+
+        function tick() {
+            if (TotalTime < 1) {
+                clearInterval(Timer);
+                return;
+            }
+
+            TotalTime--;
+            var min = Math.floor(TotalTime / 60);
+            var sec = TotalTime % 60;
+
+            var str = min.toString() + ":";
+            if (sec < 10) {
+                str += '0';
+            }
+
+            str += sec.toString();
+            TimeField.innerText = str;
+
+            var line = LINES[TotalTime];
+            if (line !== null && line !== undefined) {
+                LinesField.innerHTML = '';
+
+                var nextLine = document.createElement("DIV");
+                nextLine.className = "fade-in";
+                nextLine.innerHTML = line;
+
+                LinesField.appendChild(nextLine);
+            }
+        }
+
+        function startTimer() {
+            document.getElementById("startButton").style.display = "none";
+            TimeField = document.getElementById("timeField");
+            LinesField = document.getElementById("lines");
+            LinesField.innerText = "";
+            Timer = setInterval(tick, 1000);
+        }
+
+
+    </script>
+
+    <div class="time center" id="timeField">8:45</div>
+    <div id="lines" class="lines center">
+        Transcripts compiled from
+        <a href="https://en.wikipedia.org/wiki/Death_of_George_Floyd#Videos_of_the_arrest_recorded_by_bystanders_and_security_cameras"
+            target="_blank">
+            various sources</a><br />will start with the timer.
+    </div>
+    <div class="center">
+        <input id="startButton" type="button" value="Start" class="btn" onclick="javascript:startTimer();" />
+    </div>
+</body>
+
+</html>
